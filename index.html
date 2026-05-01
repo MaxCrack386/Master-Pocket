@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Pocket</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo-wrapper">
+                    <img src="Master pocket logo 1.png" alt="Master Pocket Logo" class="logo large">
+                </div>
+                <h1>Master Pocket</h1>
+            </div>
+            
+            <div class="sidebar-date">
+                <i class="far fa-calendar-alt"></i>
+                <span id="header-date-text"></span>
+            </div>
+            
+            <hr class="sidebar-separator">
+            
+            <nav class="tabs vertical">
+                <button class="tab-btn active" data-target="registros"><i class="fas fa-list"></i> Registros</button>
+                <button class="tab-btn" data-target="grafico"><i class="fas fa-chart-pie"></i> Gráfico</button>
+                <button class="tab-btn" data-target="resumen"><i class="fas fa-wallet"></i> Resumen</button>
+                <button class="tab-btn" data-target="productos"><i class="fas fa-box"></i> Productos</button>
+                <button class="tab-btn" data-target="papelera"><i class="fas fa-trash"></i> Papelera</button>
+            </nav>
+        </aside>
+
+        <main class="content-area">
+            <!-- Vista de Registros -->
+            <section id="registros" class="view-section active">
+                <div class="balance-card">
+                    <h2>Dinero Disponible</h2>
+                    <p id="current-balance" class="balance-amount">$0.00</p>
+                </div>
+
+                <div class="actions-bar">
+                    <button id="btn-add-record" class="btn primary"><i class="fas fa-plus"></i> Nuevo Registro</button>
+                    <button id="btn-manage-categories" class="btn secondary"><i class="fas fa-tags"></i> Categorías</button>
+                </div>
+
+                <div class="records-list">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin-bottom: 0;">Movimientos del Mes</h3>
+                        <select id="month-selector" class="month-selector-dropdown">
+                            <!-- Opciones inyectadas por JS -->
+                        </select>
+                    </div>
+                    
+                    <div class="filter-bar">
+                        <button class="filter-btn active" data-filter="all">Todos</button>
+                        <button class="filter-btn" data-filter="income">Ingresos</button>
+                        <button class="filter-btn" data-filter="expense">Gastos</button>
+                    </div>
+
+                    <div id="records-container">
+                        <!-- Los registros se inyectarán aquí -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vista de Gráfico -->
+            <section id="grafico" class="view-section hidden">
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Ingresos por Categoría</h3>
+                        <div class="canvas-wrapper">
+                            <canvas id="income-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Gastos por Categoría</h3>
+                        <div class="canvas-wrapper">
+                            <canvas id="expense-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vista de Resumen -->
+            <section id="resumen" class="view-section hidden">
+                <div class="records-list">
+                    <h3 style="margin-bottom: 20px;">Resumen por Meses</h3>
+                    <div id="monthly-summaries-container" style="display: flex; flex-direction: column; gap: 15px;">
+                        <!-- Los cajones por mes se inyectarán aquí -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vista de Productos -->
+            <section id="productos" class="view-section hidden">
+                <div class="actions-bar">
+                    <button id="btn-add-product" class="btn primary" style="background-color: #8B4513;"><i class="fas fa-plus"></i> Nuevo Producto</button>
+                </div>
+                <div class="records-list">
+                    <h3>Mis Productos</h3>
+                    <div id="products-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                        <!-- Los productos se inyectarán aquí -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vista de Papelera -->
+            <section id="papelera" class="view-section hidden">
+                <div class="actions-bar">
+                    <button id="btn-empty-trash" class="btn secondary full-width" style="color: #ef4444; border: 1px solid #ef4444;"><i class="fas fa-dumpster"></i> Vaciar Papelera</button>
+                </div>
+                <div class="records-list">
+                    <h3>Registros Eliminados</h3>
+                    <div id="trash-container">
+                        <!-- Los registros eliminados se inyectarán aquí -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modales -->
+    
+    <!-- Modal Registro -->
+    <div id="modal-record" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-record-title">Nuevo Registro</h2>
+            <form id="form-record">
+                <input type="hidden" id="record-id">
+                
+                <div class="form-group">
+                    <label>Tipo de Movimiento</label>
+                    <div class="type-selector">
+                        <label class="radio-btn"><input type="radio" name="record-type" value="income" checked> Ingreso</label>
+                        <label class="radio-btn"><input type="radio" name="record-type" value="expense"> Gasto</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="record-category">Categoría *</label>
+                    <select id="record-category" required>
+                        <!-- Opciones se inyectan dinámicamente -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="record-amount">Cantidad *</label>
+                    <input type="number" id="record-amount" step="0.01" min="0.01" required placeholder="Ej: 1500.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="record-date">Fecha *</label>
+                    <input type="date" id="record-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="record-comment">Comentarios (Opcional)</label>
+                    <textarea id="record-comment" rows="2" placeholder="Agrega un detalle..."></textarea>
+                </div>
+
+                <button type="submit" class="btn primary full-width">Guardar Registro</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Categorías -->
+    <div id="modal-categories" class="modal hidden">
+        <div class="modal-content large">
+            <span class="close-btn">&times;</span>
+            <h2>Gestión de Categorías</h2>
+            
+            <div class="category-manager">
+                <div class="add-category-section">
+                    <h3>Añadir Categoría</h3>
+                    <form id="form-category">
+                        <input type="hidden" id="cat-id">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <select id="cat-type">
+                                    <option value="income">Ingreso</option>
+                                    <option value="expense">Gasto</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-grow">
+                                <label>Nombre</label>
+                                <input type="text" id="cat-name" required placeholder="Nombre">
+                            </div>
+                            <div class="form-group">
+                                <label>Color</label>
+                                <input type="color" id="cat-color" value="#4CAF50">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn primary" id="btn-save-cat">Guardar</button>
+                            <button type="button" class="btn secondary hidden" id="btn-cancel-cat-edit">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="category-lists">
+                    <div class="cat-list-col">
+                        <h4>Ingresos</h4>
+                        <div id="list-cat-income" class="cat-list"></div>
+                    </div>
+                    <div class="cat-list-col">
+                        <h4>Gastos</h4>
+                        <div id="list-cat-expense" class="cat-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Añadir/Editar Producto -->
+    <div id="modal-product" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-product-title">Nuevo Producto</h2>
+            <form id="form-product">
+                <input type="hidden" id="product-id">
+                
+                <div class="form-group">
+                    <label for="product-name">Nombre del Producto *</label>
+                    <input type="text" id="product-name" required placeholder="Ej: Leche Colanta">
+                </div>
+
+                <button type="submit" class="btn primary full-width" style="background-color: #8B4513;">Guardar Producto</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Detalles de Producto (Cajón de Registros) -->
+    <div id="modal-product-details" class="modal hidden">
+        <div class="modal-content large">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-product-details-title">Detalles del Producto</h2>
+            
+            <div class="actions-bar" style="margin-top: 20px;">
+                <button id="btn-add-product-record" class="btn primary" style="background-color: #8B4513;"><i class="fas fa-plus"></i> Nuevo Registro de Precio</button>
+            </div>
+
+            <div class="records-list">
+                <h3>Comparativa de Precios</h3>
+                <div id="product-records-container">
+                    <!-- Los registros de precios se inyectarán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Registro de Precio (Para un Producto) -->
+    <div id="modal-product-record" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-product-record-title">Nuevo Precio</h2>
+            <form id="form-product-record">
+                <input type="hidden" id="product-record-id">
+                
+                <div class="form-group">
+                    <label for="product-record-store">Dónde se compró *</label>
+                    <input type="text" id="product-record-store" required placeholder="Ej: Tienda D1">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-grow">
+                        <label for="product-record-quantity">Cantidad *</label>
+                        <input type="number" id="product-record-quantity" step="0.01" min="0.01" required placeholder="Ej: 1">
+                    </div>
+                    <div class="form-group flex-grow">
+                        <label for="product-record-measure">Medida *</label>
+                        <input type="text" id="product-record-measure" required placeholder="Ej: Litro, Bolsa, Kg">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-record-price">Precio *</label>
+                    <input type="number" id="product-record-price" step="0.01" min="0" required placeholder="Ej: 3500">
+                </div>
+
+                <button type="submit" class="btn primary full-width" style="background-color: #8B4513;">Guardar Registro</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
