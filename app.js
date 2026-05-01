@@ -1,3 +1,23 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyB3HyANBS2QzCLKGtZCLG1uFcttEiXLfY4",
+    authDomain: "master-pocket.firebaseapp.com",
+    projectId: "master-pocket",
+    storageBucket: "master-pocket.firebasestorage.app",
+    messagingSenderId: "467803012024",
+    appId: "1:467803012024:web:acb53f20b8982f66be6d4d"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
+
+let currentUser = null;
+
 let appData = {
     records: [],
     trash: [],
@@ -21,18 +41,28 @@ let activeProductId = null;
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
-    loadData();
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('main-app-container').classList.remove('hidden');
+            
+            loadData().then(() => {
+                activeMonthStr = getCurrentMonthStr();
+                saveData(); // Fuerza el recalculo de los restantes
+                updateMonthSelector();
+                renderAll();
+                updateHeaderDate();
+            });
+        } else {
+            currentUser = null;
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('main-app-container').classList.add('hidden');
+        }
+    });
     
-    activeMonthStr = getCurrentMonthStr();
-    
-    saveData(); // Fuerza el recalculo de los restantes
-    
+    setupAuthListeners();
     setupEventListeners();
-    updateMonthSelector();
-    
-    // Por defecto mostramos los registros del mes actual
-    renderAll();
-    updateHeaderDate();
 });
 
 function updateHeaderDate() {
@@ -49,21 +79,31 @@ function updateHeaderDate() {
     dateEl.textContent = formattedDate;
 }
 
-function loadData() {
-    const stored = localStorage.getItem('masterPocketData');
-    if (stored) {
-        appData = JSON.parse(stored);
+async function loadData() {
+    if (!currentUser) return;
+    try {
+        const docRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(docRef);
         
-        // Ensure trash array exists for older saves
-        if (!appData.trash) appData.trash = [];
+        if (docSnap.exists()) {
+            appData = docSnap.data();
+            
+            // Ensure trash array exists for older saves
+            if (!appData.trash) appData.trash = [];
 
-        // Ensure products array exists
-        if (!appData.products) appData.products = [];
+            // Ensure products array exists
+            if (!appData.products) appData.products = [];
 
-        // Asegurar que la categoría del sistema exista
-        if (!appData.categories.find(c => c.id === 'system_restante')) {
-            appData.categories.push({ id: 'system_restante', type: 'income', name: 'Restante del mes', color: '#3b82f6', isSystem: true });
+            // Asegurar que la categoría del sistema exista
+            if (!appData.categories.find(c => c.id === 'system_restante')) {
+                appData.categories.push({ id: 'system_restante', type: 'income', name: 'Restante del mes', color: '#3b82f6', isSystem: true });
+            }
+        } else {
+            // First time user, keep default appData and save it
+            await setDoc(docRef, appData);
         }
+    } catch (e) {
+        console.error("Error al cargar datos desde Firestore:", e);
     }
 }
 
@@ -75,9 +115,14 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-function saveData() {
+async function saveData() {
     recalculateCarryOvers();
-    localStorage.setItem('masterPocketData', JSON.stringify(appData));
+    if (!currentUser) return;
+    try {
+        await setDoc(doc(db, 'users', currentUser.uid), appData);
+    } catch (e) {
+        console.error("Error al guardar en Firestore:", e);
+    }
 }
 
 function recalculateCarryOvers() {
@@ -702,6 +747,47 @@ function renderTrash() {
 // ========================
 // EVENT LISTENERS
 // ========================
+
+function setupAuthListeners() {
+    document.getElementById('link-to-register').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('login-view').classList.add('hidden');
+        document.getElementById('register-view').classList.remove('hidden');
+    });
+
+    document.getElementById('link-to-login').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('register-view').classList.add('hidden');
+        document.getElementById('login-view').classList.remove('hidden');
+    });
+
+    document.getElementById('form-login').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-password').value;
+        signInWithEmailAndPassword(auth, email, pass).catch(err => alert("Error al iniciar sesión: " + err.message));
+    });
+
+    document.getElementById('form-register').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('register-email').value;
+        const pass = document.getElementById('register-password').value;
+        createUserWithEmailAndPassword(auth, email, pass).catch(err => alert("Error al registrarse: " + err.message));
+    });
+
+    const googleLogin = () => signInWithPopup(auth, googleProvider).catch(err => alert("Error con Google: " + err.message));
+    document.getElementById('btn-google-login').addEventListener('click', googleLogin);
+    document.getElementById('btn-google-register').addEventListener('click', googleLogin);
+
+    // Logout button (added in sidebar)
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            signOut(auth).catch(err => alert("Error al cerrar sesión: " + err.message));
+        });
+    }
+}
+
 function setupEventListeners() {
     // Hamburger menu toggle
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');

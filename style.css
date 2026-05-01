@@ -803,6 +803,117 @@ input:focus, select:focus, textarea:focus {
     gap: 5px;
 }
 
+/* Auth View */
+.auth-container {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+    z-index: 2000;
+}
+
+.auth-container.hidden {
+    display: none;
+}
+
+.auth-box {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: var(--shadow-subtle);
+    text-align: center;
+}
+
+.auth-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-glow);
+}
+
+.auth-title {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+}
+
+.auth-view {
+    text-align: left;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.auth-view h2 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    text-align: center;
+    color: var(--text-main);
+}
+
+.auth-view.hidden {
+    display: none;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: var(--text-muted);
+}
+
+.auth-divider::before, .auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.auth-divider span {
+    padding: 0 10px;
+    font-size: 0.85rem;
+}
+
+.google-btn {
+    background: white;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.google-btn:hover {
+    background: #f1f5f9;
+    transform: translateY(-2px);
+}
+
+.google-btn i {
+    color: #ea4335;
+}
+
+.auth-switch {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.auth-switch a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
 /* =========================================
    Mobile Responsive Adjustments
    ========================================= */

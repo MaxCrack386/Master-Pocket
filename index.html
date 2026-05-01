@@ -13,7 +13,55 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
+    <!-- Contenedor de Autenticación -->
+    <div id="auth-container" class="auth-container">
+        <div class="auth-box">
+            <img src="Master pocket logo 1.png" alt="Master Pocket Logo" class="auth-logo">
+            <h1 class="auth-title">Master Pocket</h1>
+            
+            <div id="login-view" class="auth-view">
+                <h2>Iniciar Sesión</h2>
+                <form id="form-login">
+                    <div class="form-group">
+                        <label>Correo Electrónico</label>
+                        <input type="email" id="login-email" required placeholder="correo@ejemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn primary full-width" style="margin-top: 10px;">Iniciar Sesión</button>
+                </form>
+                <div class="auth-divider"><span>O</span></div>
+                <button id="btn-google-login" class="btn secondary full-width google-btn">
+                    <i class="fab fa-google"></i> Continuar con Google
+                </button>
+                <p class="auth-switch">¿No tienes cuenta? <a href="#" id="link-to-register">Regístrate</a></p>
+            </div>
+
+            <div id="register-view" class="auth-view hidden">
+                <h2>Crear Cuenta</h2>
+                <form id="form-register">
+                    <div class="form-group">
+                        <label>Correo Electrónico</label>
+                        <input type="email" id="register-email" required placeholder="correo@ejemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="register-password" required minlength="6" placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <button type="submit" class="btn primary full-width" style="margin-top: 10px;">Registrarse</button>
+                </form>
+                <div class="auth-divider"><span>O</span></div>
+                <button id="btn-google-register" class="btn secondary full-width google-btn">
+                    <i class="fab fa-google"></i> Continuar con Google
+                </button>
+                <p class="auth-switch">¿Ya tienes cuenta? <a href="#" id="link-to-login">Inicia Sesión</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container hidden" id="main-app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -40,6 +88,12 @@
                     <button class="tab-btn" data-target="resumen"><i class="fas fa-wallet"></i> Resumen</button>
                     <button class="tab-btn" data-target="papelera"><i class="fas fa-trash"></i> Papelera</button>
                 </nav>
+
+                <div style="margin-top: auto; padding-top: 20px;">
+                    <button id="btn-logout" class="btn secondary full-width" style="color: #ef4444; border: 1px solid #ef4444; background: transparent;">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
             </div>
         </aside>
 
@@ -297,6 +351,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
