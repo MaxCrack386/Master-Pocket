@@ -16,26 +16,31 @@
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-brand">
-                <div class="logo-wrapper">
-                    <img src="Master pocket logo 1.png" alt="Master Pocket Logo" class="logo large">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div class="logo-wrapper">
+                        <img src="Master pocket logo 1.png" alt="Master Pocket Logo" class="logo large">
+                    </div>
+                    <h1>Master Pocket</h1>
                 </div>
-                <h1>Master Pocket</h1>
+                <button id="mobile-menu-btn" class="hamburger-btn hidden-desktop"><i class="fas fa-bars"></i></button>
             </div>
             
-            <div class="sidebar-date">
-                <i class="far fa-calendar-alt"></i>
-                <span id="header-date-text"></span>
+            <div class="sidebar-menu" id="sidebar-menu">
+                <div class="sidebar-date">
+                    <i class="far fa-calendar-alt"></i>
+                    <span id="header-date-text"></span>
+                </div>
+                
+                <hr class="sidebar-separator">
+                
+                <nav class="tabs vertical">
+                    <button class="tab-btn active" data-target="registros"><i class="fas fa-list"></i> Registros</button>
+                    <button class="tab-btn" data-target="grafico"><i class="fas fa-chart-pie"></i> Gráfico</button>
+                    <button class="tab-btn" data-target="resumen"><i class="fas fa-wallet"></i> Resumen</button>
+                    <button class="tab-btn" data-target="papelera"><i class="fas fa-trash"></i> Papelera</button>
+                </nav>
             </div>
-            
-            <hr class="sidebar-separator">
-            
-            <nav class="tabs vertical">
-                <button class="tab-btn active" data-target="registros"><i class="fas fa-list"></i> Registros</button>
-                <button class="tab-btn" data-target="grafico"><i class="fas fa-chart-pie"></i> Gráfico</button>
-                <button class="tab-btn" data-target="resumen"><i class="fas fa-wallet"></i> Resumen</button>
-                <button class="tab-btn" data-target="papelera"><i class="fas fa-trash"></i> Papelera</button>
-            </nav>
         </aside>
 
         <main class="content-area">
