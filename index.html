@@ -19,44 +19,46 @@
             <img src="Master pocket logo 1.png" alt="Master Pocket Logo" class="auth-logo">
             <h1 class="auth-title">Master Pocket</h1>
             
-            <div id="login-view" class="auth-view">
-                <h2>Iniciar Sesión</h2>
-                <form id="form-login">
-                    <div class="form-group">
-                        <label>Correo Electrónico</label>
-                        <input type="email" id="login-email" required placeholder="correo@ejemplo.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Contraseña</label>
-                        <input type="password" id="login-password" required placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn primary full-width" style="margin-top: 10px;">Iniciar Sesión</button>
-                </form>
-                <div class="auth-divider"><span>O</span></div>
-                <button id="btn-google-login" class="btn secondary full-width google-btn">
+            <div id="google-auth-view" class="auth-view">
+                <h2>Bienvenido</h2>
+                <p style="text-align: center; margin-bottom: 20px; color: var(--text-muted);">Para ingresar o registrarte, conecta tu cuenta de Google.</p>
+                <button id="btn-google-init" class="btn secondary full-width google-btn">
                     <i class="fab fa-google"></i> Continuar con Google
                 </button>
-                <p class="auth-switch">¿No tienes cuenta? <a href="#" id="link-to-register">Regístrate</a></p>
             </div>
 
-            <div id="register-view" class="auth-view hidden">
-                <h2>Crear Cuenta</h2>
-                <form id="form-register">
+            <div id="step2-register-view" class="auth-view hidden">
+                <h2>Completar Registro</h2>
+                <p style="text-align: center; margin-bottom: 20px; color: var(--text-muted);">Crea un usuario y una contraseña para tu cuenta donde se guardará tu información.</p>
+                <form id="form-step2-register">
                     <div class="form-group">
-                        <label>Correo Electrónico</label>
-                        <input type="email" id="register-email" required placeholder="correo@ejemplo.com">
+                        <label>Usuario</label>
+                        <input type="text" id="reg-username" required placeholder="Tu usuario">
                     </div>
                     <div class="form-group">
                         <label>Contraseña</label>
-                        <input type="password" id="register-password" required minlength="6" placeholder="Mínimo 6 caracteres">
+                        <input type="password" id="reg-password" required minlength="4" placeholder="Crea una contraseña">
                     </div>
-                    <button type="submit" class="btn primary full-width" style="margin-top: 10px;">Registrarse</button>
+                    <button type="submit" class="btn primary full-width" style="margin-top: 10px;">Completar Registro</button>
                 </form>
-                <div class="auth-divider"><span>O</span></div>
-                <button id="btn-google-register" class="btn secondary full-width google-btn">
-                    <i class="fab fa-google"></i> Continuar con Google
-                </button>
-                <p class="auth-switch">¿Ya tienes cuenta? <a href="#" id="link-to-login">Inicia Sesión</a></p>
+                <button id="btn-cancel-reg" class="btn secondary full-width" style="margin-top: 10px; border-color: #ef4444; color: #ef4444; background: transparent;">Cancelar</button>
+            </div>
+
+            <div id="step2-login-view" class="auth-view hidden">
+                <h2>Iniciar Sesión</h2>
+                <p style="text-align: center; margin-bottom: 20px; color: var(--text-muted);">Ingresa tu usuario y contraseña para ver tu información.</p>
+                <form id="form-step2-login">
+                    <div class="form-group">
+                        <label>Usuario</label>
+                        <input type="text" id="log-username" required placeholder="Tu usuario">
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="log-password" required placeholder="Tu contraseña">
+                    </div>
+                    <button type="submit" class="btn primary full-width" style="margin-top: 10px;">Entrar</button>
+                </form>
+                <button id="btn-cancel-log" class="btn secondary full-width" style="margin-top: 10px; border-color: #ef4444; color: #ef4444; background: transparent;">Cancelar</button>
             </div>
         </div>
     </div>

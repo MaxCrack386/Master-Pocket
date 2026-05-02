@@ -17,6 +17,7 @@ const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
 let currentUser = null;
+let isSecondStepPassed = false;
 
 let appData = {
     records: [],
@@ -41,29 +42,73 @@ let activeProductId = null;
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
-            document.getElementById('auth-container').classList.add('hidden');
-            document.getElementById('main-app-container').classList.remove('hidden');
-            
-            loadData().then(() => {
-                activeMonthStr = getCurrentMonthStr();
-                saveData(); // Fuerza el recalculo de los restantes
-                updateMonthSelector();
-                renderAll();
-                updateHeaderDate();
-            });
+            if (isSecondStepPassed) {
+                showMainApp();
+            } else {
+                try {
+                    const docRef = doc(db, 'users', currentUser.uid);
+                    const docSnap = await getDoc(docRef);
+                    
+                    document.getElementById('google-auth-view').classList.add('hidden');
+                    
+                    if (docSnap.exists()) {
+                        appData = docSnap.data();
+                    }
+                    
+                    // Ensure trash array exists for older saves
+                    if (!appData.trash) appData.trash = [];
+
+                    // Ensure products array exists
+                    if (!appData.products) appData.products = [];
+
+                    // Asegurar que la categoría del sistema exista
+                    if (!appData.categories.find(c => c.id === 'system_restante')) {
+                        appData.categories.push({ id: 'system_restante', type: 'income', name: 'Restante del mes', color: '#3b82f6', isSystem: true });
+                    }
+                    
+                    if (appData.appPassword) {
+                        document.getElementById('step2-login-view').classList.remove('hidden');
+                    } else {
+                        document.getElementById('step2-register-view').classList.remove('hidden');
+                    }
+                } catch (e) {
+                    console.error("Error al cargar datos:", e);
+                }
+            }
         } else {
             currentUser = null;
+            isSecondStepPassed = false;
             document.getElementById('auth-container').classList.remove('hidden');
             document.getElementById('main-app-container').classList.add('hidden');
+            
+            document.getElementById('google-auth-view').classList.remove('hidden');
+            document.getElementById('step2-login-view').classList.add('hidden');
+            document.getElementById('step2-register-view').classList.add('hidden');
+            
+            document.getElementById('reg-username').value = '';
+            document.getElementById('reg-password').value = '';
+            document.getElementById('log-username').value = '';
+            document.getElementById('log-password').value = '';
         }
     });
     
     setupAuthListeners();
     setupEventListeners();
 });
+
+function showMainApp() {
+    document.getElementById('auth-container').classList.add('hidden');
+    document.getElementById('main-app-container').classList.remove('hidden');
+    
+    activeMonthStr = getCurrentMonthStr();
+    saveData();
+    updateMonthSelector();
+    renderAll();
+    updateHeaderDate();
+}
 
 function updateHeaderDate() {
     const dateEl = document.getElementById('header-date-text');
@@ -77,34 +122,6 @@ function updateHeaderDate() {
     formattedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
     
     dateEl.textContent = formattedDate;
-}
-
-async function loadData() {
-    if (!currentUser) return;
-    try {
-        const docRef = doc(db, 'users', currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-            appData = docSnap.data();
-            
-            // Ensure trash array exists for older saves
-            if (!appData.trash) appData.trash = [];
-
-            // Ensure products array exists
-            if (!appData.products) appData.products = [];
-
-            // Asegurar que la categoría del sistema exista
-            if (!appData.categories.find(c => c.id === 'system_restante')) {
-                appData.categories.push({ id: 'system_restante', type: 'income', name: 'Restante del mes', color: '#3b82f6', isSystem: true });
-            }
-        } else {
-            // First time user, keep default appData and save it
-            await setDoc(docRef, appData);
-        }
-    } catch (e) {
-        console.error("Error al cargar datos desde Firestore:", e);
-    }
 }
 
 function formatCurrency(amount) {
@@ -749,35 +766,44 @@ function renderTrash() {
 // ========================
 
 function setupAuthListeners() {
-    document.getElementById('link-to-register').addEventListener('click', (e) => {
+    document.getElementById('form-step2-register').addEventListener('submit', async (e) => {
         e.preventDefault();
-        document.getElementById('login-view').classList.add('hidden');
-        document.getElementById('register-view').classList.remove('hidden');
+        const username = document.getElementById('reg-username').value;
+        const password = document.getElementById('reg-password').value;
+        
+        appData.appUsername = username;
+        appData.appPassword = password;
+        
+        try {
+            await setDoc(doc(db, 'users', currentUser.uid), appData);
+            isSecondStepPassed = true;
+            document.getElementById('step2-register-view').classList.add('hidden');
+            showMainApp();
+        } catch(err) {
+            alert("Error al guardar: " + err.message);
+        }
     });
 
-    document.getElementById('link-to-login').addEventListener('click', (e) => {
+    document.getElementById('form-step2-login').addEventListener('submit', (e) => {
         e.preventDefault();
-        document.getElementById('register-view').classList.add('hidden');
-        document.getElementById('login-view').classList.remove('hidden');
+        const username = document.getElementById('log-username').value;
+        const password = document.getElementById('log-password').value;
+        
+        if (appData.appUsername === username && appData.appPassword === password) {
+            isSecondStepPassed = true;
+            document.getElementById('step2-login-view').classList.add('hidden');
+            showMainApp();
+        } else {
+            alert("Usuario o contraseña incorrectos.");
+        }
     });
 
-    document.getElementById('form-login').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-password').value;
-        signInWithEmailAndPassword(auth, email, pass).catch(err => alert("Error al iniciar sesión: " + err.message));
-    });
+    document.getElementById('btn-cancel-reg').addEventListener('click', () => signOut(auth));
+    document.getElementById('btn-cancel-log').addEventListener('click', () => signOut(auth));
 
-    document.getElementById('form-register').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('register-email').value;
-        const pass = document.getElementById('register-password').value;
-        createUserWithEmailAndPassword(auth, email, pass).catch(err => alert("Error al registrarse: " + err.message));
+    document.getElementById('btn-google-init').addEventListener('click', () => {
+        signInWithPopup(auth, googleProvider).catch(err => alert("Error con Google: " + err.message));
     });
-
-    const googleLogin = () => signInWithPopup(auth, googleProvider).catch(err => alert("Error con Google: " + err.message));
-    document.getElementById('btn-google-login').addEventListener('click', googleLogin);
-    document.getElementById('btn-google-register').addEventListener('click', googleLogin);
 
     // Logout button (added in sidebar)
     const btnLogout = document.getElementById('btn-logout');
