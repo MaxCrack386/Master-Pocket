@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -13,6 +13,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+setPersistence(auth, browserSessionPersistence).catch(console.error);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
@@ -98,6 +99,19 @@ document.addEventListener('DOMContentLoaded', () => {
     setupAuthListeners();
     setupEventListeners();
 });
+
+window.togglePasswordVisibility = function(inputId, iconElement) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        iconElement.classList.remove('fa-eye');
+        iconElement.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        iconElement.classList.remove('fa-eye-slash');
+        iconElement.classList.add('fa-eye');
+    }
+}
 
 function showMainApp() {
     document.getElementById('auth-container').classList.add('hidden');
@@ -795,6 +809,65 @@ function setupAuthListeners() {
             showMainApp();
         } else {
             alert("Usuario o contraseña incorrectos.");
+        }
+    });
+
+    document.getElementById('btn-forgot-password').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('step2-login-view').classList.add('hidden');
+        document.getElementById('forgot-password-view').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-cancel-recovery').addEventListener('click', () => {
+        document.getElementById('forgot-password-view').classList.add('hidden');
+        document.getElementById('step2-login-view').classList.remove('hidden');
+        document.getElementById('code-input-section').classList.add('hidden');
+        document.getElementById('recovery-code-input').value = '';
+    });
+
+    let generatedCode = '';
+    document.getElementById('btn-send-code').addEventListener('click', () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        generatedCode = '';
+        for (let i = 0; i < 6; i++) {
+            generatedCode += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        
+        alert('Código enviado a tu correo de Google con éxito (simulado).\n\nTU CÓDIGO DE RECUPERACIÓN ES: ' + generatedCode);
+        document.getElementById('code-input-section').classList.remove('hidden');
+    });
+
+    document.getElementById('btn-verify-code').addEventListener('click', () => {
+        const inputCode = document.getElementById('recovery-code-input').value.toUpperCase();
+        if (inputCode === generatedCode && inputCode !== '') {
+            document.getElementById('forgot-password-view').classList.add('hidden');
+            document.getElementById('reset-password-view').classList.remove('hidden');
+        } else {
+            alert('Código incorrecto. Inténtalo de nuevo.');
+        }
+    });
+
+    document.getElementById('form-reset-password').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newUsername = document.getElementById('reset-username').value;
+        const newPassword = document.getElementById('reset-password').value;
+        
+        appData.appUsername = newUsername;
+        appData.appPassword = newPassword;
+        
+        try {
+            await setDoc(doc(db, 'users', currentUser.uid), appData);
+            alert('Datos actualizados correctamente. Por favor inicia sesión de nuevo.');
+            
+            document.getElementById('reset-password-view').classList.add('hidden');
+            document.getElementById('step2-login-view').classList.remove('hidden');
+            
+            document.getElementById('reset-username').value = '';
+            document.getElementById('reset-password').value = '';
+            document.getElementById('recovery-code-input').value = '';
+            document.getElementById('code-input-section').classList.add('hidden');
+        } catch(err) {
+            alert("Error al actualizar los datos: " + err.message);
         }
     });
 

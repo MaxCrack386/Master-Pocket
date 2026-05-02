@@ -133,7 +133,7 @@ body {
 
 
 .logo.large {
-    width: 125%; /* Scale up to crop white border */
+    width: 150%; /* Scale up to crop white border */
     height: auto;
 }
 
@@ -524,7 +524,7 @@ label {
     color: var(--text-muted);
 }
 
-input[type="text"], input[type="number"], input[type="date"], select, textarea {
+input[type="text"], input[type="password"], input[type="number"], input[type="date"], select, textarea {
     width: 100%;
     padding: 12px 15px;
     background: rgba(15, 23, 42, 0.6);

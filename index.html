@@ -16,7 +16,9 @@
     <!-- Contenedor de Autenticación -->
     <div id="auth-container" class="auth-container">
         <div class="auth-box">
-            <img src="Master pocket logo 1.png" alt="Master Pocket Logo" class="auth-logo">
+            <div class="logo-wrapper" style="margin: 0 auto 10px;">
+                <img src="Master pocket logo 1.png" alt="Master Pocket Logo" class="logo large">
+            </div>
             <h1 class="auth-title">Master Pocket</h1>
             
             <div id="google-auth-view" class="auth-view">
@@ -37,7 +39,10 @@
                     </div>
                     <div class="form-group">
                         <label>Contraseña</label>
-                        <input type="password" id="reg-password" required minlength="4" placeholder="Crea una contraseña">
+                        <div class="password-wrapper" style="position: relative;">
+                            <input type="password" id="reg-password" required minlength="4" placeholder="Crea una contraseña">
+                            <i class="fas fa-eye toggle-password" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);" onclick="togglePasswordVisibility('reg-password', this)"></i>
+                        </div>
                     </div>
                     <button type="submit" class="btn primary full-width" style="margin-top: 10px;">Completar Registro</button>
                 </form>
@@ -54,11 +59,48 @@
                     </div>
                     <div class="form-group">
                         <label>Contraseña</label>
-                        <input type="password" id="log-password" required placeholder="Tu contraseña">
+                        <div class="password-wrapper" style="position: relative;">
+                            <input type="password" id="log-password" required placeholder="Tu contraseña">
+                            <i class="fas fa-eye toggle-password" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);" onclick="togglePasswordVisibility('log-password', this)"></i>
+                        </div>
+                        <a href="#" id="btn-forgot-password" style="display: block; text-align: right; margin-top: 8px; color: var(--primary); font-size: 0.85rem; text-decoration: none;">¿Olvidé mi usuario/contraseña?</a>
                     </div>
                     <button type="submit" class="btn primary full-width" style="margin-top: 10px;">Entrar</button>
                 </form>
                 <button id="btn-cancel-log" class="btn secondary full-width" style="margin-top: 10px; border-color: #ef4444; color: #ef4444; background: transparent;">Cancelar</button>
+            </div>
+
+            <div id="forgot-password-view" class="auth-view hidden">
+                <h2>Recuperar Cuenta</h2>
+                <p style="text-align: center; margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem;">Enviaremos un código de seguridad a la cuenta de Google con la que te registraste.</p>
+                <button id="btn-send-code" class="btn primary full-width">Enviar Código</button>
+                
+                <div id="code-input-section" class="hidden" style="margin-top: 20px;">
+                    <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">Ingresa el código de 6 caracteres que recibiste:</p>
+                    <input type="text" id="recovery-code-input" placeholder="Ej: A1B2C3" style="text-transform: uppercase; text-align: center; letter-spacing: 2px;">
+                    <button id="btn-verify-code" class="btn primary full-width" style="margin-top: 10px;">Verificar Código</button>
+                </div>
+                
+                <button id="btn-cancel-recovery" class="btn secondary full-width" style="margin-top: 10px; border-color: #ef4444; color: #ef4444; background: transparent;">Volver</button>
+            </div>
+
+            <div id="reset-password-view" class="auth-view hidden">
+                <h2>Restablecer Datos</h2>
+                <p style="text-align: center; margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem;">Ingresa tu nuevo usuario y contraseña.</p>
+                <form id="form-reset-password">
+                    <div class="form-group">
+                        <label>Nuevo Usuario</label>
+                        <input type="text" id="reset-username" required placeholder="Tu nuevo usuario">
+                    </div>
+                    <div class="form-group">
+                        <label>Nueva Contraseña</label>
+                        <div class="password-wrapper" style="position: relative;">
+                            <input type="password" id="reset-password" required minlength="4" placeholder="Tu nueva contraseña">
+                            <i class="fas fa-eye toggle-password" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);" onclick="togglePasswordVisibility('reset-password', this)"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn primary full-width" style="margin-top: 10px;">Guardar Cambios</button>
+                </form>
             </div>
         </div>
     </div>
